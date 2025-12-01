@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>AI Image Generator • უფასო AI გამოსახულებების გენერატორი</title>
+
+<link rel="stylesheet" href="styles.css">
+
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+
+<nav class="top-nav">
+  <div class="logo">✨ AI Generator</div>
+</nav>
+
+<header>
+  <h1 class="title glow">AI Image Generator</h1>
+  <p class="subtitle">✨ შექმენი AI გამოსახულებები ✨</p>
+</header>
+
+<div class="container">
+
+<form id="generator-form" class="glass-card">
+
+  <fieldset>
+    <legend>📜 აღწერა</legend>
+    <textarea id="prompt" placeholder="დაწერე აღწერა..." rows="3">შთამბეჭდავი მზის ჩასვლის ილუსტრაცია მხედრის სილუეტით </textarea>
+  </fieldset>
+
+  <fieldset>
+    <legend>🤖 AI მოდელი</legend>
+    <select id="model">
+      <option value="@cf/bytedance/stable-diffusion-xl-lightning">Bytedance SDXL Lightning</option>
+      <option value="@cf/lykon/dreamshaper-8-lcm">Dreamshaper 8 LCM</option>
+      <option value="@cf/stabilityai/stable-diffusion-xl-base-1.0" selected>Stability SDXL Base 1.0</option>
+    </select>
+  </fieldset>
+
+  <fieldset>
+    <legend>📦 რაოდენობა</legend>
+    <div class="radio-group2">
+      <input type="radio" name="quantity" value="1" id="q1" checked>
+      <label class="radio-label2" for="q1">1</label>
+
+      <input type="radio" name="quantity" value="2" id="q2">
+      <label class="radio-label2" for="q2">2</label>
+
+      <input type="radio" name="quantity" value="3" id="q3">
+      <label class="radio-label2" for="q3">3</label>
+
+      <input type="radio" name="quantity" value="4" id="q4">
+      <label class="radio-label2" for="q4">4</label>
+    </div>
+  </fieldset>
+
+  
+<fieldset>
+  <legend>📐 გამოსახულების ზომა</legend>
+
+  <div class="size-flex">
+    
+   <div class="size-left">
+  <label>სიგანე:<span id="widthValue">1024</span>
+    <input type="range" id="widthSlider" min="256" max="2048" step="256" value="1024">
+  </label>
+
+  <label>სიმაღლე:<span id="heightValue">1024</span><!--style="margin-top:20px;"--> 
+    <input type="range" id="heightSlider" min="256" max="2048" step="256" value="1024">
+  </label>
+</div>
+
+
+    <div class="size-right">
+      <div id="sizePreview"></div>
+    </div>
+
+  </div>
+</fieldset>
+
+
+
+  <div class="btn-container">
+    <button type="button" class="btn glow-btn" id="genBtn">შესრულება</button>
+  </div>
+
+</form>
+
+<div id="loading" class="loading hidden">
+  <div class="spinner"></div>
+  სრულდება...
+</div>
+
+<h2 class="section-title">შედეგი</h2>
+<div id="image-container" class="image-grid"></div>
+
+<h2 class="section-title">ისტორია</h2>
+<div id="history" class="history-grid"></div>
+
+</div>
+
+<script src="app.js"></script>
+
+<script>
+
+const widthSlider = document.getElementById("widthSlider");
+const heightSlider = document.getElementById("heightSlider");
+const widthValue = document.getElementById("widthValue");
+const heightValue = document.getElementById("heightValue");
+const preview = document.getElementById("sizePreview");
+
+function updatePreview() {
+  let w = Number(widthSlider.value);
+  let h = Number(heightSlider.value);
+
+  widthValue.textContent = w;
+  heightValue.textContent = h;
+
+  const maxPreview = 100;
+  const scale = maxPreview / Math.max(w, h);
+
+  preview.style.width = (w * scale) + "px";
+  preview.style.height = (h * scale) + "px";
+}
+
+widthSlider.addEventListener("input", updatePreview);
+heightSlider.addEventListener("input", updatePreview);
+updatePreview();
+
+
+const canvas = document.getElementById("particles");
+const ctx = canvas.getContext("2d");
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.onresize = resizeCanvas;
+
+let particles = [];
+for (let i = 0; i < 60; i++) {
+  particles.push({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: Math.random() * 2 + 1,
+    dx: (Math.random() - 0.5) * 0.3,
+    dy: (Math.random() - 0.5) * 0.3
+  });
+}
+
+function animate() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  
+  particles.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(255,255,255,0.15)";
+    ctx.fill();
+
+    p.x += p.dx;
+    p.y += p.dy;
+
+    if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+    if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+  });
+
+  requestAnimationFrame(animate);
+}
+animate();
+
+</script>
+
+</body>
+</html>
